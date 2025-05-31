@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "345237158091",
+    "project_id": "rehman-dc0ca",
+    "storage_bucket": "rehman-dc0ca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345237158091:android:f0caec5acb998caf52034e",
+        "android_client_info": {
+          "package_name": "com.example.form"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-TA2-4Y-8dMyetCK3A051ne6JiLNAppU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
