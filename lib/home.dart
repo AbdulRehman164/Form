@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'formpage.dart';
+import 'student.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -100,9 +101,24 @@ class _MyHomePageState extends State<MyHomePage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => deleteStudent(s.id),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FormPage(student: s),
+                                  ),
+                                ).then((_) => fetchStudents());
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => deleteStudent(s.id),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -134,22 +150,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
-
-class Student {
-  String id;
-  String name;
-  String agNumber;
-  int? age;
-  String email;
-  String department;
-
-  Student(
-    this.id,
-    this.name,
-    this.agNumber,
-    this.age,
-    this.email,
-    this.department,
-  );
 }

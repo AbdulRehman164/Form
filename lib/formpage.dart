@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'student.dart';
 
 class FormPage extends StatefulWidget {
-  const FormPage({super.key});
+  final Student? student;
+
+  const FormPage({super.key, this.student});
 
   @override
   State<FormPage> createState() => _FormPageState();
@@ -16,22 +19,30 @@ class _FormPageState extends State<FormPage> {
   final emailCtrl = TextEditingController();
   final departmentCtrl = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.student != null) {
+      nameCtrl.text = widget.student!.name;
+      agNumCtrl.text = widget.student!.agNumber;
+      ageCtrl.text = widget.student!.age?.toString() ?? '';
+      emailCtrl.text = widget.student!.email;
+      departmentCtrl.text = widget.student!.department;
+    }
+  }
+
   Widget customTextField(String label, TextEditingController controller) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
         controller: controller,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter $label';
-          }
-          return null;
-        },
-
+        validator:
+            (value) =>
+                value == null || value.isEmpty ? 'Please enter $label' : null,
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(),
-          focusedBorder: OutlineInputBorder(
+          focusedBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.amber, width: 2),
           ),
         ),
@@ -50,17 +61,31 @@ class _FormPageState extends State<FormPage> {
       };
 
       try {
-        await FirebaseFirestore.instance
-            .collection('students')
-            .add(studentData);
+        if (widget.student == null) {
+          await FirebaseFirestore.instance
+              .collection('students')
+              .add(studentData);
+        } else {
+          await FirebaseFirestore.instance
+              .collection('students')
+              .doc(widget.student!.id)
+              .update(studentData);
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data uploaded successfully')),
+          SnackBar(
+            content: Text(
+              widget.student == null
+                  ? 'Data uploaded successfully'
+                  : 'Data updated successfully',
+            ),
+          ),
         );
-        formKey.currentState!.reset();
+        Navigator.pop(context); // Return to home
       } catch (e) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error uploading data: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -72,11 +97,11 @@ class _FormPageState extends State<FormPage> {
         appBar: AppBar(
           backgroundColor: Colors.amber,
           title: Text(
-            "My Database App",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            widget.student == null ? "Add Student" : "Edit Student",
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        body: Container(
+        body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: formKey,
@@ -94,8 +119,8 @@ class _FormPageState extends State<FormPage> {
                   ),
                   onPressed: submitForm,
                   child: Text(
-                    'Submit',
-                    style: TextStyle(
+                    widget.student == null ? 'Submit' : 'Update',
+                    style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                       fontSize: 17,
