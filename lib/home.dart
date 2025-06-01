@@ -21,6 +21,7 @@ class _MyHomePageState extends State<MyHomePage> {
           querySnapshot.docs.map((doc) {
             final data = doc.data();
             return Student(
+              doc.id,
               data['name'] ?? '',
               data['ag_number'] ?? '',
               data['age'],
@@ -35,6 +36,17 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (e) {
       setState(() {
         error = e.toString();
+      });
+    }
+  }
+
+  void deleteStudent(String id) async {
+    try {
+      await FirebaseFirestore.instance.collection('students').doc(id).delete();
+      fetchStudents(); // Refresh list
+    } catch (e) {
+      setState(() {
+        error = 'Delete failed: $e';
       });
     }
   }
@@ -78,13 +90,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      s.name,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          s.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => deleteStudent(s.id),
+                        ),
+                      ],
                     ),
+
                     const SizedBox(height: 6),
                     Text('AG Number: ${s.agNumber}'),
                     Text('Age: ${s.age}'),
@@ -115,11 +137,19 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class Student {
+  String id;
   String name;
   String agNumber;
   int? age;
   String email;
   String department;
 
-  Student(this.name, this.agNumber, this.age, this.email, this.department);
+  Student(
+    this.id,
+    this.name,
+    this.agNumber,
+    this.age,
+    this.email,
+    this.department,
+  );
 }
